@@ -1,16 +1,14 @@
 import json
 
 import responses
+from database import init_db
+from storage import get_storage_client
 
 from flask import Flask, request
-from database import init_db
 from flask_restful import marshal_with, Resource, Api
 
 
-from storage import get_storage_client
-
 app = Flask(__name__)
-
 api = Api(app=app)
 
 

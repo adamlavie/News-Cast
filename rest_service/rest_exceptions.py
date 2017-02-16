@@ -2,7 +2,6 @@ from flask_restful import HTTPException
 
 
 class ArticleError(HTTPException):
-
     def __init__(self, message, status_code=None, payload=None):
         HTTPException.__init__(self)
         self.message = message
@@ -11,7 +10,6 @@ class ArticleError(HTTPException):
 
 
 class ArticleNotFound(ArticleError):
-
     def __init__(self, message, status_code=404, payload=None):
         ArticleError.__init__(self, message, status_code, payload)
 

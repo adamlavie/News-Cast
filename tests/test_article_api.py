@@ -81,4 +81,4 @@ class ArticleTests(unittest.TestCase):
     def _create_article(self, title, content):
         data = {'title': title,
                 'content': content}
-        return self.app.put('article/{}'.format(data['title']), data=data)
+        return self.app.put('article/{0}'.format(title), data=data)

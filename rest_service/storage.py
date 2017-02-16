@@ -9,33 +9,45 @@ from flask import current_app
 
 class StorageClient(object):
 
-    def get_articles(self):
+    @staticmethod
+    def get_articles():
         return Article.query.all()
 
     def create_article(self, title, content):
         article = Article.query.filter_by(title=title).first()
         if article:
-            raise ArticleAlreadyExists('Article with title {} already exists'
+            raise ArticleAlreadyExists('Article with title {} already exists.'
                                        .format(title))
-        created_at = str(datetime.datetime.now())
-        article = Article(title=title, content=content, created_at=created_at)
-        db_session.add(article)
-        db_session.commit()
+        article = self._create_article(content, title)
         return article
 
-    def get_article(self, title):
+    @staticmethod
+    def get_article(title):
         article = Article.query.filter_by(title=title).first()
         if not article:
             raise ArticleNotFound('Article with title {} not found.'
                                   .format(title))
-        return Article.query.filter_by(title=title).first()
+        return article
 
     def update_article(self, title, new_title=None, content=None):
         article = self.get_article(title=title)
         if not article:
-            raise ArticleNotFound('Article with title {} not found'
+            raise ArticleNotFound('Article with title {} not found.'
                                   .format(title))
 
+        article = self._update_article(article, content, new_title)
+        # Return the new, updated article
+        return article
+
+    def delete_article(self, title):
+        article = Article.query.filter_by(title=title)
+        if not article:
+            raise ArticleNotFound('Article with title {} not found.'
+                                  .format(title))
+        article = self._delete_article(article)
+        return article
+
+    def _update_article(self, article, content=None, new_title=None):
         if new_title:
             article.title = new_title
         if content:
@@ -43,15 +55,22 @@ class StorageClient(object):
         db_session.commit()
         return self.get_article(title=article.title)
 
-    def delete_article(self, title):
-        article = Article.query.filter_by(title=title)
-        if not article:
-            raise ArticleNotFound('Article with title {} doesn\'t exist'
-                                  .format(title))
+    @staticmethod
+    def _delete_article(article):
         result = article.first()
         article.delete()
         db_session.commit()
         return result
+
+    @staticmethod
+    def _create_article(content, title):
+        created_at = str(datetime.datetime.now())
+        article = Article(title=title,
+                          content=content,
+                          created_at=created_at)
+        db_session.add(article)
+        db_session.commit()
+        return article
 
 
 def get_storage_client():
